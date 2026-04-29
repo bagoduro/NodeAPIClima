@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API de Clima</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #resultado {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .erro {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Consulta de Clima</h1>
+    <form id="formClima">
+        <input type="text" id="cidade" placeholder="Digite o nome da cidade" required>
+        <button type="submit">Consultar Clima</button>
+    </form>
+    <div id="resultado"></div>
+
+    <script>
+        document.getElementById('formClima').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const cidade = document.getElementById('cidade').value.trim();
+            const resultadoDiv = document.getElementById('resultado');
+
+            if (!cidade) {
+                resultadoDiv.innerHTML = '<p class="erro">Por favor, digite o nome da cidade.</p>';
+                return;
+            }
+
+            resultadoDiv.innerHTML = '<p>Carregando...</p>';
+
+            try {
+                const response = await fetch(`/api/clima/${encodeURIComponent(cidade)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultadoDiv.innerHTML = `
+                        <h2>Clima em ${data.cidade}, ${data.pais}</h2>
+                        <p><strong>Temperatura:</strong> ${data.temperatura}</p>
+                        <p><strong>Sensação Térmica:</strong> ${data.sensacao_termica}</p>
+                        <p><strong>Clima:</strong> ${data.clima}</p>
+                        <p><strong>Umidade:</strong> ${data.umidade}</p>
+                        <p><strong>Velocidade do Vento:</strong> ${data.velocidade_vento}</p>
+                    `;
+                } else {
+                    resultadoDiv.innerHTML = `<p class="erro">Erro: ${data.error}</p>`;
+                }
+            } catch (error) {
+                resultadoDiv.innerHTML = '<p class="erro">Erro ao conectar com a API. Verifique se o servidor está rodando.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
